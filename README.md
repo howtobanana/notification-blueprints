@@ -1,4 +1,4 @@
-# Notifications Blueprints
+# Notification Blueprints
 
 Allgemeine Home Assistant Blueprints für Benachrichtigungen.
 
