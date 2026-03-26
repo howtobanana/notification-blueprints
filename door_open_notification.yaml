@@ -6,7 +6,7 @@ blueprint:
     Managt vergessene Türen, erkennt potenzielle Einbrüche und überwacht die Sensor-Gesundheit.
 
     **Kern-Funktionen:**
-    - 🔔 Vergessen-Erinnerung: Person verlässt die Wohnung, Tür bleibt offen → nur diese Person wird erinnert.
+    - 🔔 Tür-Offen Erinnerung: Person ist zuhause, Tür steht offen → diese Person wird erinnert.
     - 🚨 Fallback-Alarm: Tür steht zu lange offen → ALLE werden benachrichtigt (normal oder kritisch).
     - 🔐 Einbruch-Erkennung: Niemand zuhause, Tür öffnet sich → sofortiger kritischer Alarm an alle.
     - 🩺 Health-Watchdog: Sensor wird unavailable/unknown → Warnung an Person 1.
@@ -19,7 +19,7 @@ blueprint:
     - 🩺 Health-Monitoring: Erkennt wenn der Sensor ausfällt und die Überwachung blind wird.
     - 🐛 Debug-Modus für Diagnose bei Problemen.
 
-    **Version:** 1.1 | **Autor:** BananaPower
+    **Version:** 1.2 | **Autor:** BananaPower
 
   domain: automation
   source_url: https://raw.githubusercontent.com/howtobanana/notification-blueprints/main/door_open_notification.yaml
@@ -36,8 +36,8 @@ blueprint:
       description: |
         Tür-Sensor und Zeitintervalle für alle drei Alarm-Szenarien.
 
-        **Szenario 1 — 🔔 Vergessen zu schließen:**
-        Person verlässt die Wohnung, Tür bleibt offen → nach eingestellter Zeit bekommt NUR diese Person eine Erinnerung. Wer noch zuhause ist wird nicht belästigt.
+        **Szenario 1 — 🔔 Tür-Offen Erinnerung (Person zuhause):**
+        Mindestens eine Person ist in der Home-Zone und die Tür steht offen → nach eingestellter Zeit bekommt jede Person die ZUHAUSE ist eine Erinnerung.
 
         **Szenario 2 — 🚨 Fallback-Alarm (Sicherheitsabstand):**
         Tür steht über langen Zeitraum durchgehend offen → ALLE Personen werden benachrichtigt. Wahlweise als normaler oder kritischer Alarm.
@@ -58,11 +58,11 @@ blueprint:
               device_class: door
 
         person_left_duration:
-          name: "🔔 Vergessen-Erinnerung: Verzögerung"
+          name: "🔔 Tür-Offen Erinnerung: Verzögerung"
           description: |
-            Wie viele Sekunden die Tür offen stehen muss, bevor Personen die NICHT zuhause sind eine Erinnerung bekommen.
-            Beispiel: Person verlässt die Wohnung und vergisst die Tür zu schließen — nach dieser Zeit bekommt sie eine Push-Benachrichtigung.
-            Empfehlung: 60 Sekunden gibt genug Zeit zum Abschließen.
+            Wie viele Sekunden die Tür offen stehen muss, bevor Personen die ZUHAUSE sind eine Erinnerung bekommen.
+            Beispiel: Du bist zuhause, Tür steht offen — nach dieser Zeit bekommst du eine Push-Benachrichtigung.
+            Empfehlung: 60 Sekunden. Wer nur kurz Müll rausbringt wird nicht gestört.
           default: 60
           selector:
             number:
@@ -73,7 +73,7 @@ blueprint:
               mode: slider
 
         person_left_repeat:
-          name: "🔔 Vergessen-Erinnerung: Wiederholungsintervall"
+          name: "🔔 Tür-Offen Erinnerung: Wiederholungsintervall"
           description: |
             Alle wie viele Sekunden die Erinnerung wiederholt wird, solange die Tür offen steht.
             Die Benachrichtigung stoppt automatisch sobald die Tür geschlossen wird.
@@ -315,7 +315,7 @@ blueprint:
         Im Debug-Modus werden folgende Informationen gesendet:
         — Sensor-Status beim Auslösen (verfügbar / unavailable / unknown)
         — Welche Personen zuhause sind und welche nicht
-        — Welches Szenario aktiviert wurde (Vergessen / Fallback / Einbruch)
+        — Welches Szenario aktiviert wurde (Tür-Offen / Fallback / Einbruch)
         — Watchdog-Status (Sensor-Wechsel zu unavailable/unknown)
 
         Nützlich bei: Fehlalarmen, ausbleibenden Benachrichtigungen, Problemen mit dem Tür-Sensor oder der Zone-Erkennung.
@@ -484,8 +484,8 @@ actions:
           # --- Parallele Szenarien ---
           - parallel:
               # =============================================================
-              #  SZENARIO 1: 🔔 Vergessen zu schließen
-              #  Person ist NICHT in zone.home → Erinnerung an diese Person
+              #  SZENARIO 1: 🔔 Tür-Offen Erinnerung
+              #  Person IST in zone.home → Erinnerung an diese Person
               # =============================================================
               - sequence:
                   - delay:
@@ -510,8 +510,8 @@ actions:
                     then:
                       - action: "{{ notify_service_1 | trim }}"
                         data:
-                          title: "🐛 Szenario: Vergessen"
-                          message: "Tür seit {{ inputs.person_left_duration }}s offen. Prüfe welche Personen nicht zuhause sind..."
+                          title: "🐛 Szenario: Tür-Offen"
+                          message: "Tür seit {{ inputs.person_left_duration }}s offen. Sende Erinnerung an Personen die zuhause sind..."
                           data:
                             tag: door_debug_forgot
                     continue_on_error: true
@@ -526,12 +526,12 @@ actions:
                         # --- Person 1 ---
                         - if:
                             - condition: template
-                              value_template: "{{ not is_state(inputs.person_1, 'home') and (notify_service_1 | trim) != '' }}"
+                              value_template: "{{ is_state(inputs.person_1, 'home') and (notify_service_1 | trim) != '' }}"
                           then:
                             - action: "{{ notify_service_1 | trim }}"
                               data:
                                 title: "🔔 Tür offen"
-                                message: "Wohnungstüre offen — hast du vergessen zu schließen?"
+                                message: "Wohnungstüre steht offen!"
                                 data:
                                   tag: door_forgot_1
                                   push:
@@ -548,12 +548,12 @@ actions:
                         # --- Person 2 ---
                         - if:
                             - condition: template
-                              value_template: "{{ inputs.person_2 != '' and not is_state(inputs.person_2, 'home') and (notify_service_2 | trim) != '' }}"
+                              value_template: "{{ inputs.person_2 != '' and is_state(inputs.person_2, 'home') and (notify_service_2 | trim) != '' }}"
                           then:
                             - action: "{{ notify_service_2 | trim }}"
                               data:
                                 title: "🔔 Tür offen"
-                                message: "Wohnungstüre offen — hast du vergessen zu schließen?"
+                                message: "Wohnungstüre steht offen!"
                                 data:
                                   tag: door_forgot_2
                                   push:
@@ -570,12 +570,12 @@ actions:
                         # --- Person 3 ---
                         - if:
                             - condition: template
-                              value_template: "{{ inputs.person_3 != '' and not is_state(inputs.person_3, 'home') and (notify_service_3 | trim) != '' }}"
+                              value_template: "{{ inputs.person_3 != '' and is_state(inputs.person_3, 'home') and (notify_service_3 | trim) != '' }}"
                           then:
                             - action: "{{ notify_service_3 | trim }}"
                               data:
                                 title: "🔔 Tür offen"
-                                message: "Wohnungstüre offen — hast du vergessen zu schließen?"
+                                message: "Wohnungstüre steht offen!"
                                 data:
                                   tag: door_forgot_3
                                   push:
@@ -592,12 +592,12 @@ actions:
                         # --- Person 4 ---
                         - if:
                             - condition: template
-                              value_template: "{{ inputs.person_4 != '' and not is_state(inputs.person_4, 'home') and (notify_service_4 | trim) != '' }}"
+                              value_template: "{{ inputs.person_4 != '' and is_state(inputs.person_4, 'home') and (notify_service_4 | trim) != '' }}"
                           then:
                             - action: "{{ notify_service_4 | trim }}"
                               data:
                                 title: "🔔 Tür offen"
-                                message: "Wohnungstüre offen — hast du vergessen zu schließen?"
+                                message: "Wohnungstüre steht offen!"
                                 data:
                                   tag: door_forgot_4
                                   push:
