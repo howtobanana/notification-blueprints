@@ -1,23 +1,27 @@
 blueprint:
   name: "Tür-Offen Benachrichtigung"
-  description: >
-    All-in-One Blueprint für Tür-Überwachung mit drei Szenarien:
+  description: |
+    🚪 **Tür-Überwachung — All-in-One Blueprint**
 
-    **1. Vergessen zu schließen** — Wenn eine Person die Zone "Home" verlässt und die Tür
-    offen steht, erhält sie nach einer konfigurierbaren Zeit eine Erinnerung.
+    Managt vergessene Türen und erkennt potenzielle Einbrüche. Drei Szenarien in einer Automation.
 
-    **2. Fallback-Alarm** — Steht die Tür über einen längeren Zeitraum offen (z.B. 20 Min.),
-    werden ALLE Personen benachrichtigt — unabhängig davon, wo sie sich befinden.
-    Wahlweise als normaler oder kritischer Alarm.
+    **Kern-Funktionen:**
+    - 🔔 Vergessen-Erinnerung: Person verlässt die Wohnung, Tür bleibt offen → nur diese Person wird erinnert.
+    - 🚨 Fallback-Alarm: Tür steht zu lange offen → ALLE werden benachrichtigt (normal oder kritisch).
+    - 🔐 Einbruch-Erkennung: Niemand zuhause, Tür öffnet sich → sofortiger kritischer Alarm an alle.
 
-    **3. Einbruch-Erkennung** — Ist keine Person zuhause und die Tür öffnet sich,
-    wird sofort ein kritischer Alarm an alle Personen gesendet.
+    **Features:**
+    - 👥 1–4 Personen mit individueller Zone-Erkennung.
+    - 📱 Device-Picker für Mobile-App Geräte (kein manuelles Tippen).
+    - 🛡️ Self-Healing: Fehler in einem Szenario stoppen nicht die anderen.
+    - 🔇 Auto-Stop: Alle Benachrichtigungen enden wenn die Tür geschlossen wird.
+    - 🐛 Debug-Modus für Diagnose bei Problemen.
 
-    Unterstützt 1–4 Personen, kritische iOS/Android Push-Alarme,
-    Self-Healing (Fehler in einem Szenario stoppen nicht die anderen)
-    und einen optionalen Debug-Modus für Diagnose-Informationen.
+    **Version:** 1.0 | **Autor:** BananaPower
+
   domain: automation
-  author: "Fabian Brandl"
+  source_url: https://raw.githubusercontent.com/howtobanana/notification-blueprints/main/door_open_notification.yaml
+  author: "bananapower"
   homeassistant:
     min_version: "2024.6.0"
 
@@ -25,36 +29,26 @@ blueprint:
     # =========================================================================
     #  SEKTION 1: Basis-Einstellungen
     # =========================================================================
-    base_settings:
-      name: "Basis-Einstellungen"
-      description: >
-        Hier wird der Tür-Sensor ausgewählt und die Zeitintervalle für alle drei
-        Alarm-Szenarien konfiguriert.
+    section_base:
+      name: "⚙️ Basis-Einstellungen"
+      description: |
+        Tür-Sensor und Zeitintervalle für alle drei Alarm-Szenarien.
 
+        **Szenario 1 — 🔔 Vergessen zu schließen:**
+        Person verlässt die Wohnung, Tür bleibt offen → nach eingestellter Zeit bekommt NUR diese Person eine Erinnerung. Wer noch zuhause ist wird nicht belästigt.
 
-        Szenario 1 — Vergessen zu schließen:
-        Wenn eine Person die Wohnung verlässt und die Tür offen steht,
-        bekommt NUR diese Person nach der eingestellten Zeit eine Erinnerung.
-        Personen die noch zuhause sind werden nicht belästigt.
+        **Szenario 2 — 🚨 Fallback-Alarm (Sicherheitsabstand):**
+        Tür steht über langen Zeitraum durchgehend offen → ALLE Personen werden benachrichtigt. Wahlweise als normaler oder kritischer Alarm.
 
-
-        Szenario 2 — Fallback-Alarm (Sicherheitsabstand):
-        Wenn die Tür über einen langen Zeitraum durchgehend offen steht,
-        werden ALLE Personen benachrichtigt. Dies greift unabhängig davon,
-        wer zuhause ist. Wahlweise als normaler oder kritischer Alarm.
-
-
-        Szenario 3 — Einbruch-Erkennung:
-        Wenn KEINE Person in der Home-Zone ist und die Tür geöffnet wird,
-        erhalten alle sofort einen kritischen Alarm.
+        **Szenario 3 — 🔐 Einbruch-Erkennung:**
+        KEINE Person in der Home-Zone und Tür wird geöffnet → sofortiger kritischer Alarm an alle.
       collapsed: false
       input:
         door_sensor:
-          name: "Tür-Sensor"
-          description: >
+          name: "🚪 Tür-Sensor"
+          description: |
             Der Binärsensor der zu überwachenden Tür.
-            Es werden nur Sensoren mit Device-Class "door" angezeigt
-            (z.B. Aqara, Sonoff, Xiaomi Tür-/Fenstersensoren).
+            Es werden nur Sensoren mit Device-Class "door" angezeigt (z.B. Aqara, Sonoff, Xiaomi).
             Der Sensor muss "on" = offen und "off" = geschlossen melden.
           selector:
             entity:
@@ -62,12 +56,10 @@ blueprint:
               device_class: door
 
         person_left_duration:
-          name: "Vergessen-Erinnerung: Verzögerung"
-          description: >
-            Wie viele Sekunden die Tür offen stehen muss, bevor Personen
-            die NICHT zuhause sind eine Erinnerung bekommen.
-            Beispiel: Person verlässt die Wohnung und vergisst die Tür zu schließen —
-            nach dieser Zeit bekommt sie eine Push-Benachrichtigung.
+          name: "🔔 Vergessen-Erinnerung: Verzögerung"
+          description: |
+            Wie viele Sekunden die Tür offen stehen muss, bevor Personen die NICHT zuhause sind eine Erinnerung bekommen.
+            Beispiel: Person verlässt die Wohnung und vergisst die Tür zu schließen — nach dieser Zeit bekommt sie eine Push-Benachrichtigung.
             Empfehlung: 60 Sekunden gibt genug Zeit zum Abschließen.
           default: 60
           selector:
@@ -79,11 +71,10 @@ blueprint:
               mode: slider
 
         person_left_repeat:
-          name: "Vergessen-Erinnerung: Wiederholungsintervall"
-          description: >
-            Alle wie viele Sekunden die Erinnerung wiederholt wird,
-            solange die Tür offen steht. Die Benachrichtigung stoppt
-            automatisch sobald die Tür geschlossen wird.
+          name: "🔔 Vergessen-Erinnerung: Wiederholungsintervall"
+          description: |
+            Alle wie viele Sekunden die Erinnerung wiederholt wird, solange die Tür offen steht.
+            Die Benachrichtigung stoppt automatisch sobald die Tür geschlossen wird.
           default: 60
           selector:
             number:
@@ -94,12 +85,10 @@ blueprint:
               mode: slider
 
         long_open_duration:
-          name: "Fallback-Alarm: Verzögerung"
-          description: >
-            Nach wie vielen Minuten ALLE Personen benachrichtigt werden,
-            wenn die Tür durchgehend offen steht — unabhängig davon wer
-            zuhause ist. Dies ist der Sicherheits-Fallback für den Fall,
-            dass die Vergessen-Erinnerung ignoriert wird oder niemand reagiert.
+          name: "🚨 Fallback-Alarm: Verzögerung"
+          description: |
+            Nach wie vielen Minuten ALLE Personen benachrichtigt werden, wenn die Tür durchgehend offen steht — unabhängig davon wer zuhause ist.
+            Dies ist der Sicherheits-Fallback für den Fall, dass die Vergessen-Erinnerung ignoriert wird oder niemand reagiert.
             Empfehlung: 20 Minuten ist ein guter Sicherheitsabstand.
           default: 20
           selector:
@@ -111,10 +100,9 @@ blueprint:
               mode: slider
 
         long_open_repeat:
-          name: "Fallback-Alarm: Wiederholungsintervall"
-          description: >
-            Alle wie viele Sekunden der Fallback-Alarm wiederholt wird,
-            bis die Tür geschlossen wird.
+          name: "🚨 Fallback-Alarm: Wiederholungsintervall"
+          description: |
+            Alle wie viele Sekunden der Fallback-Alarm wiederholt wird, bis die Tür geschlossen wird.
           default: 60
           selector:
             number:
@@ -125,22 +113,19 @@ blueprint:
               mode: slider
 
         long_open_critical:
-          name: "Fallback-Alarm: Kritischer Alarm?"
-          description: >
-            Wenn aktiviert, wird der Fallback-Alarm als KRITISCHE Benachrichtigung
-            gesendet. Kritische Alarme durchbrechen den Lautlos-/Nicht-Stören-Modus
-            auf iOS und Android.
-            Wenn deaktiviert, wird eine normale Push-Benachrichtigung gesendet,
-            die bei stummgeschaltetem Gerät möglicherweise nicht sofort bemerkt wird.
+          name: "🚨 Fallback-Alarm: Kritischer Alarm?"
+          description: |
+            Wenn aktiviert, wird der Fallback-Alarm als KRITISCHE Benachrichtigung gesendet.
+            Kritische Alarme durchbrechen den Lautlos-/Nicht-Stören-Modus auf iOS und Android.
+            Wenn deaktiviert, wird eine normale Push-Benachrichtigung gesendet.
           default: false
           selector:
             boolean:
 
         breakin_duration:
-          name: "Einbruch-Erkennung: Verzögerung"
-          description: >
-            Wie viele Sekunden die Tür offen stehen muss wenn KEINE Person
-            in der Home-Zone ist, bevor der Einbruch-Alarm ausgelöst wird.
+          name: "🔐 Einbruch-Erkennung: Verzögerung"
+          description: |
+            Wie viele Sekunden die Tür offen stehen muss wenn KEINE Person in der Home-Zone ist, bevor der Einbruch-Alarm ausgelöst wird.
             Kurze Werte (5–10s) empfohlen, um schnell zu reagieren.
             Zu kurze Werte können bei GPS-Ungenauigkeiten Fehlalarme auslösen.
           default: 10
@@ -153,11 +138,10 @@ blueprint:
               mode: slider
 
         breakin_repeat:
-          name: "Einbruch-Erkennung: Wiederholungsintervall"
-          description: >
-            Alle wie viele Sekunden der Einbruch-Alarm wiederholt wird,
-            bis die Tür geschlossen wird. Der Alarm ist immer kritisch
-            und durchbricht den Lautlos-Modus.
+          name: "🔐 Einbruch-Erkennung: Wiederholungsintervall"
+          description: |
+            Alle wie viele Sekunden der Einbruch-Alarm wiederholt wird, bis die Tür geschlossen wird.
+            Der Alarm ist immer kritisch und durchbricht den Lautlos-Modus.
           default: 60
           selector:
             number:
@@ -168,134 +152,117 @@ blueprint:
               mode: slider
 
     # =========================================================================
-    #  SEKTION 2: Personen
+    #  SEKTION 2: Personen & Benachrichtigungen
     # =========================================================================
-    persons_settings:
-      name: "Personen"
-      description: >
-        Konfiguriere bis zu 4 Personen mit ihren zugehörigen
-        Benachrichtigungs-Services. Person 1 ist Pflicht, Personen 2–4 optional.
-
+    section_persons:
+      name: "👥 Personen & Benachrichtigungen"
+      description: |
+        Konfiguriere bis zu 4 Personen mit ihren zugehörigen Mobile-App Geräten.
+        Person 1 ist Pflicht, Personen 2–4 optional.
 
         Jede Person benötigt zwei Angaben:
-        (1) Die Person-Entität — bestimmt über Zone-Tracking ob die Person
-        zuhause ist oder nicht.
-        (2) Den Notify-Service-Namen — der mobile_app Service der Companion App.
+        **(1)** Die Person-Entität — bestimmt über Zone-Tracking ob die Person zuhause ist oder nicht.
+        **(2)** Das Mobile-App Gerät — wird über den Device-Picker ausgewählt.
 
-
-        Den Service-Namen findest du unter:
-        Einstellungen → Geräte & Dienste → Begleit-App → dein Gerät.
-        Der Name steht im Format "mobile_app_gerätename" (z.B. "mobile_app_iphone_fabian").
-
-
-        Wichtig: Die Person-Entität muss korrekt mit einem GPS-Tracker
-        (Companion App, iCloud, etc.) verbunden sein, damit die Zone-Erkennung
-        zuverlässig funktioniert.
+        **Wichtig:** Die Person-Entität muss korrekt mit einem GPS-Tracker (Companion App, iCloud, etc.) verbunden sein, damit die Zone-Erkennung zuverlässig funktioniert.
       collapsed: false
       input:
         person_1:
-          name: "Person 1 (Pflicht)"
-          description: >
+          name: "👤 Person 1 (Pflicht)"
+          description: |
             Die Haupt-Person. Wird auch für Debug-Nachrichten verwendet.
-            Diese Person muss immer konfiguriert sein.
           selector:
             entity:
               domain: person
 
-        notify_service_1:
-          name: "Benachrichtigungs-Service Person 1"
-          description: >
-            Der mobile_app Notify-Service für Person 1.
-            Beispiel: mobile_app_iphone_fabian
-            Tipp: Unter Entwicklerwerkzeuge → Dienste nach "notify.mobile_app"
-            suchen um den korrekten Namen zu finden.
+        notify_device_1:
+          name: "📱 Notify Gerät Person 1"
+          description: |
+            Mobile-App Gerät für Person 1.
           selector:
-            text:
+            device:
+              filter:
+                integration: mobile_app
 
         person_2:
-          name: "Person 2 (optional)"
-          description: >
+          name: "👤 Person 2 (optional)"
+          description: |
             Zweite Person — leer lassen wenn nicht benötigt.
-            Wenn leer, wird diese Person in allen Szenarien ignoriert.
           default: ""
           selector:
             entity:
               domain: person
 
-        notify_service_2:
-          name: "Benachrichtigungs-Service Person 2"
-          description: >
-            Der mobile_app Notify-Service für Person 2.
-            Muss leer bleiben wenn Person 2 nicht konfiguriert ist.
+        notify_device_2:
+          name: "📱 Notify Gerät Person 2"
+          description: |
+            Mobile-App Gerät für Person 2. Leer lassen wenn Person 2 nicht konfiguriert ist.
           default: ""
           selector:
-            text:
+            device:
+              filter:
+                integration: mobile_app
 
         person_3:
-          name: "Person 3 (optional)"
-          description: >
+          name: "👤 Person 3 (optional)"
+          description: |
             Dritte Person — leer lassen wenn nicht benötigt.
-            Wenn leer, wird diese Person in allen Szenarien ignoriert.
           default: ""
           selector:
             entity:
               domain: person
 
-        notify_service_3:
-          name: "Benachrichtigungs-Service Person 3"
-          description: >
-            Der mobile_app Notify-Service für Person 3.
-            Muss leer bleiben wenn Person 3 nicht konfiguriert ist.
+        notify_device_3:
+          name: "📱 Notify Gerät Person 3"
+          description: |
+            Mobile-App Gerät für Person 3. Leer lassen wenn Person 3 nicht konfiguriert ist.
           default: ""
           selector:
-            text:
+            device:
+              filter:
+                integration: mobile_app
 
         person_4:
-          name: "Person 4 (optional)"
-          description: >
+          name: "👤 Person 4 (optional)"
+          description: |
             Vierte Person — leer lassen wenn nicht benötigt.
-            Wenn leer, wird diese Person in allen Szenarien ignoriert.
           default: ""
           selector:
             entity:
               domain: person
 
-        notify_service_4:
-          name: "Benachrichtigungs-Service Person 4"
-          description: >
-            Der mobile_app Notify-Service für Person 4.
-            Muss leer bleiben wenn Person 4 nicht konfiguriert ist.
+        notify_device_4:
+          name: "📱 Notify Gerät Person 4"
+          description: |
+            Mobile-App Gerät für Person 4. Leer lassen wenn Person 4 nicht konfiguriert ist.
           default: ""
           selector:
-            text:
+            device:
+              filter:
+                integration: mobile_app
 
     # =========================================================================
     #  SEKTION 3: Debug & Monitoring
     # =========================================================================
-    debug_settings:
-      name: "Debug & Monitoring"
-      description: >
-        Aktiviere den Debug-Modus um Diagnose-Informationen als
-        Push-Benachrichtigung an Person 1 zu erhalten.
-
+    section_debug:
+      name: "🐛 Debug & Monitoring"
+      description: |
+        Aktiviere den Debug-Modus um Diagnose-Informationen als Push-Benachrichtigung an Person 1 zu erhalten.
 
         Im Debug-Modus werden folgende Informationen gesendet:
         — Sensor-Status beim Auslösen (verfügbar / unavailable / unknown)
         — Welche Personen zuhause sind und welche nicht
         — Welches Szenario aktiviert wurde (Vergessen / Fallback / Einbruch)
 
-
-        Nützlich bei: Fehlalarmen, ausbleibenden Benachrichtigungen,
-        Problemen mit dem Tür-Sensor oder der Zone-Erkennung.
+        Nützlich bei: Fehlalarmen, ausbleibenden Benachrichtigungen, Problemen mit dem Tür-Sensor oder der Zone-Erkennung.
         Im Normalbetrieb deaktiviert lassen um unnötige Benachrichtigungen zu vermeiden.
       collapsed: true
       input:
         debug_enabled:
-          name: "Debug-Modus aktivieren"
-          description: >
+          name: "🐛 Debug-Modus aktivieren"
+          description: |
             Sendet Diagnose-Informationen bei jedem Auslösen der Automation.
-            Alle Debug-Nachrichten werden ausschließlich an den
-            Benachrichtigungs-Service von Person 1 gesendet.
+            Alle Debug-Nachrichten werden ausschließlich an das Gerät von Person 1 gesendet.
             Empfehlung: Nur zur Fehlersuche aktivieren, danach wieder deaktivieren.
           default: false
           selector:
@@ -314,32 +281,81 @@ triggers:
 
 actions:
   # ---------------------------------------------------------------------------
-  #  Variablen: !input → Template-Variablen
+  #  Variablen
   # ---------------------------------------------------------------------------
   - variables:
-      door_sensor: !input door_sensor
-      person_1: !input person_1
-      person_2: !input person_2
-      person_3: !input person_3
-      person_4: !input person_4
-      notify_service_1: !input notify_service_1
-      notify_service_2: !input notify_service_2
-      notify_service_3: !input notify_service_3
-      notify_service_4: !input notify_service_4
-      person_left_duration: !input person_left_duration
-      person_left_repeat: !input person_left_repeat
-      long_open_duration: !input long_open_duration
-      long_open_repeat: !input long_open_repeat
-      long_open_critical: !input long_open_critical
-      breakin_duration: !input breakin_duration
-      breakin_repeat: !input breakin_repeat
-      debug_enabled: !input debug_enabled
-      # Hilfsvariablen
+      inputs:
+        door_sensor: !input door_sensor
+        person_1: !input person_1
+        person_2: !input person_2
+        person_3: !input person_3
+        person_4: !input person_4
+        notify_device_1: !input notify_device_1
+        notify_device_2: !input notify_device_2
+        notify_device_3: !input notify_device_3
+        notify_device_4: !input notify_device_4
+        person_left_duration: !input person_left_duration
+        person_left_repeat: !input person_left_repeat
+        long_open_duration: !input long_open_duration
+        long_open_repeat: !input long_open_repeat
+        long_open_critical: !input long_open_critical
+        breakin_duration: !input breakin_duration
+        breakin_repeat: !input breakin_repeat
+        debug_enabled: !input debug_enabled
+
+      # --- Device → Notify-Service Auflösung ---
+      notify_service_1: >
+        {% set dev = inputs.notify_device_1 | default('') | string | trim %}
+        {% if dev != '' %}
+          {% set dev_name = device_attr(dev, 'name') %}
+          {% if dev_name is string and (dev_name | trim) != '' %}
+            notify.mobile_app_{{ (dev_name | slugify) | replace('-', '_') }}
+          {% endif %}
+        {% endif %}
+
+      notify_service_2: >
+        {% set dev = inputs.notify_device_2 | default('') | string | trim %}
+        {% if dev != '' %}
+          {% set dev_name = device_attr(dev, 'name') %}
+          {% if dev_name is string and (dev_name | trim) != '' %}
+            notify.mobile_app_{{ (dev_name | slugify) | replace('-', '_') }}
+          {% endif %}
+        {% endif %}
+
+      notify_service_3: >
+        {% set dev = inputs.notify_device_3 | default('') | string | trim %}
+        {% if dev != '' %}
+          {% set dev_name = device_attr(dev, 'name') %}
+          {% if dev_name is string and (dev_name | trim) != '' %}
+            notify.mobile_app_{{ (dev_name | slugify) | replace('-', '_') }}
+          {% endif %}
+        {% endif %}
+
+      notify_service_4: >
+        {% set dev = inputs.notify_device_4 | default('') | string | trim %}
+        {% if dev != '' %}
+          {% set dev_name = device_attr(dev, 'name') %}
+          {% if dev_name is string and (dev_name | trim) != '' %}
+            notify.mobile_app_{{ (dev_name | slugify) | replace('-', '_') }}
+          {% endif %}
+        {% endif %}
+
+      # --- Personen-Listen ---
       all_persons: >
-        {{ [person_1, person_2, person_3, person_4] | reject('eq', '') | list }}
+        {{ [inputs.person_1, inputs.person_2, inputs.person_3, inputs.person_4]
+           | reject('eq', '') | list }}
+
+      all_notify_targets: >
+        {% set ns = namespace(items=[]) %}
+        {% for svc in [notify_service_1, notify_service_2, notify_service_3, notify_service_4] %}
+          {% if (svc | trim) != '' %}
+            {% set ns.items = ns.items + [svc | trim] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join(',') }}
+
       persons_home_count: >
-        {{ expand([person_1, person_2, person_3, person_4]
-           | reject('eq', '') | list)
+        {{ expand(all_persons)
            | selectattr('state', 'eq', 'home')
            | list | length }}
 
@@ -348,28 +364,28 @@ actions:
   # ---------------------------------------------------------------------------
   - if:
       - condition: template
-        value_template: "{{ debug_enabled }}"
+        value_template: "{{ inputs.debug_enabled | bool(false) }}"
     then:
       - if:
           - condition: template
             value_template: >
-              {{ states(door_sensor) in ['unavailable', 'unknown'] }}
+              {{ states(inputs.door_sensor) in ['unavailable', 'unknown'] }}
         then:
-          - action: "notify.{{ notify_service_1 }}"
+          - action: "{{ notify_service_1 | trim }}"
             data:
-              title: "[DEBUG] Sensor-Problem"
-              message: >
-                Tür-Sensor {{ door_sensor }} ist {{ states(door_sensor) }}.
+              title: "🐛 Sensor-Problem"
+              message: |
+                Tür-Sensor {{ inputs.door_sensor }} ist {{ states(inputs.door_sensor) }}.
                 Bitte Sensor-Verbindung prüfen!
         else:
-          - action: "notify.{{ notify_service_1 }}"
+          - action: "{{ notify_service_1 | trim }}"
             data:
-              title: "[DEBUG] Automation gestartet"
+              title: "🐛 Automation gestartet"
               message: >
                 Tür-Offen Automation ausgelöst.
-                Sensor: {{ door_sensor }} = {{ states(door_sensor) }}
-                Personen: {{ all_persons | join(', ') }}
-                Zuhause: {{ persons_home_count }} von {{ all_persons | length }} Personen
+                Sensor: {{ inputs.door_sensor }} = {{ states(inputs.door_sensor) }}.
+                Personen: {{ all_persons | join(', ') }}.
+                Zuhause: {{ persons_home_count }} von {{ all_persons | length }}.
     continue_on_error: true
 
   # ---------------------------------------------------------------------------
@@ -377,7 +393,7 @@ actions:
   # ---------------------------------------------------------------------------
   - parallel:
       # =====================================================================
-      #  SZENARIO 1: Person hat vergessen zu schließen
+      #  SZENARIO 1: 🔔 Person hat vergessen zu schließen
       #  → Person ist NICHT in zone.home → Erinnerung an diese Person
       # =====================================================================
       - sequence:
@@ -392,24 +408,20 @@ actions:
           # Mindestens eine Person muss zuhause sein — sonst greift Szenario 3 (Einbruch)
           - condition: template
             value_template: >
-              {% set persons = [person_1, person_2, person_3, person_4]
-                 | reject('eq', '') | list %}
-              {% set home = expand(persons)
+              {% set home = expand(all_persons)
                  | selectattr('state', 'eq', 'home')
                  | list | length %}
               {{ home > 0 }}
 
-          # Debug: Szenario-Eintritt
+          # Debug
           - if:
               - condition: template
-                value_template: "{{ debug_enabled }}"
+                value_template: "{{ inputs.debug_enabled | bool(false) }}"
             then:
-              - action: "notify.{{ notify_service_1 }}"
+              - action: "{{ notify_service_1 | trim }}"
                 data:
-                  title: "[DEBUG] Szenario: Vergessen"
-                  message: >
-                    Tür seit {{ person_left_duration }}s offen.
-                    Prüfe welche Personen nicht zuhause sind...
+                  title: "🐛 Szenario: Vergessen"
+                  message: "Tür seit {{ inputs.person_left_duration }}s offen. Prüfe welche Personen nicht zuhause sind..."
             continue_on_error: true
 
           # Repeat bis Tür zu
@@ -419,18 +431,19 @@ actions:
                   entity_id: !input door_sensor
                   state: "on"
               sequence:
-                # --- Person 1: immer konfiguriert ---
+                # --- Person 1 ---
                 - if:
                     - condition: template
-                      value_template: "{{ not is_state(person_1, 'home') }}"
+                      value_template: "{{ not is_state(inputs.person_1, 'home') and (notify_service_1 | trim) != '' }}"
                   then:
-                    - action: "notify.{{ notify_service_1 }}"
+                    - action: "{{ notify_service_1 | trim }}"
                       data:
-                        title: "Tür offen"
+                        title: "🔔 Tür offen"
                         message: "Wohnungstüre offen — hast du vergessen zu schließen?"
                         data:
-                          tag: "door-forgot-1"
+                          tag: door_forgot_1
                           push:
+                            interruption-level: critical
                             sound:
                               name: default
                               critical: 1
@@ -440,19 +453,19 @@ actions:
                           channel: alarm_stream
                   continue_on_error: true
 
-                # --- Person 2: wenn konfiguriert und nicht zuhause ---
+                # --- Person 2 ---
                 - if:
                     - condition: template
-                      value_template: >
-                        {{ person_2 != '' and not is_state(person_2, 'home') }}
+                      value_template: "{{ inputs.person_2 != '' and not is_state(inputs.person_2, 'home') and (notify_service_2 | trim) != '' }}"
                   then:
-                    - action: "notify.{{ notify_service_2 }}"
+                    - action: "{{ notify_service_2 | trim }}"
                       data:
-                        title: "Tür offen"
+                        title: "🔔 Tür offen"
                         message: "Wohnungstüre offen — hast du vergessen zu schließen?"
                         data:
-                          tag: "door-forgot-2"
+                          tag: door_forgot_2
                           push:
+                            interruption-level: critical
                             sound:
                               name: default
                               critical: 1
@@ -462,19 +475,19 @@ actions:
                           channel: alarm_stream
                   continue_on_error: true
 
-                # --- Person 3: wenn konfiguriert und nicht zuhause ---
+                # --- Person 3 ---
                 - if:
                     - condition: template
-                      value_template: >
-                        {{ person_3 != '' and not is_state(person_3, 'home') }}
+                      value_template: "{{ inputs.person_3 != '' and not is_state(inputs.person_3, 'home') and (notify_service_3 | trim) != '' }}"
                   then:
-                    - action: "notify.{{ notify_service_3 }}"
+                    - action: "{{ notify_service_3 | trim }}"
                       data:
-                        title: "Tür offen"
+                        title: "🔔 Tür offen"
                         message: "Wohnungstüre offen — hast du vergessen zu schließen?"
                         data:
-                          tag: "door-forgot-3"
+                          tag: door_forgot_3
                           push:
+                            interruption-level: critical
                             sound:
                               name: default
                               critical: 1
@@ -484,19 +497,19 @@ actions:
                           channel: alarm_stream
                   continue_on_error: true
 
-                # --- Person 4: wenn konfiguriert und nicht zuhause ---
+                # --- Person 4 ---
                 - if:
                     - condition: template
-                      value_template: >
-                        {{ person_4 != '' and not is_state(person_4, 'home') }}
+                      value_template: "{{ inputs.person_4 != '' and not is_state(inputs.person_4, 'home') and (notify_service_4 | trim) != '' }}"
                   then:
-                    - action: "notify.{{ notify_service_4 }}"
+                    - action: "{{ notify_service_4 | trim }}"
                       data:
-                        title: "Tür offen"
+                        title: "🔔 Tür offen"
                         message: "Wohnungstüre offen — hast du vergessen zu schließen?"
                         data:
-                          tag: "door-forgot-4"
+                          tag: door_forgot_4
                           push:
+                            interruption-level: critical
                             sound:
                               name: default
                               critical: 1
@@ -515,14 +528,14 @@ actions:
                     seconds: !input person_left_repeat
                   continue_on_error: true
 
-                # Sicherheitscheck: Tür immer noch offen?
+                # Sicherheitscheck
                 - condition: state
                   entity_id: !input door_sensor
                   state: "on"
         continue_on_error: true
 
       # =====================================================================
-      #  SZENARIO 2: Fallback-Alarm (Tür lange offen)
+      #  SZENARIO 2: 🚨 Fallback-Alarm (Tür lange offen)
       #  → ALLE Personen werden benachrichtigt
       # =====================================================================
       - sequence:
@@ -534,18 +547,15 @@ actions:
             entity_id: !input door_sensor
             state: "on"
 
-          # Debug: Szenario-Eintritt
+          # Debug
           - if:
               - condition: template
-                value_template: "{{ debug_enabled }}"
+                value_template: "{{ inputs.debug_enabled | bool(false) }}"
             then:
-              - action: "notify.{{ notify_service_1 }}"
+              - action: "{{ notify_service_1 | trim }}"
                 data:
-                  title: "[DEBUG] Szenario: Fallback"
-                  message: >
-                    Tür seit {{ long_open_duration }} Minuten offen!
-                    Sende Fallback-Alarm an alle Personen.
-                    Kritisch: {{ long_open_critical }}
+                  title: "🐛 Szenario: Fallback"
+                  message: "Tür seit {{ inputs.long_open_duration }} Min offen! Sende Fallback-Alarm an alle. Kritisch: {{ inputs.long_open_critical }}."
             continue_on_error: true
 
           # Repeat bis Tür zu
@@ -555,89 +565,28 @@ actions:
                   entity_id: !input door_sensor
                   state: "on"
               sequence:
-                # --- Person 1: immer ---
-                - action: "notify.{{ notify_service_1 }}"
-                  data:
-                    title: "Tür offen — Fallback-Alarm"
-                    message: >
-                      Wohnungstür steht seit {{ long_open_duration }} Minuten offen!
-                    data:
-                      tag: "door-fallback-1"
-                      push:
-                        sound:
-                          name: default
-                          critical: "{{ 1 if long_open_critical else 0 }}"
-                          volume: 1.0
-                      ttl: 0
-                      priority: high
-                      channel: "{{ 'alarm_stream' if long_open_critical else 'default' }}"
-                  continue_on_error: true
-
-                # --- Person 2 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_2 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_2 }}"
-                      data:
-                        title: "Tür offen — Fallback-Alarm"
-                        message: >
-                          Wohnungstür steht seit {{ long_open_duration }} Minuten offen!
+                - variables:
+                    fallback_targets: >
+                      {{ (all_notify_targets | trim).split(',') if (all_notify_targets | trim) != '' else [] }}
+                - repeat:
+                    for_each: "{{ fallback_targets }}"
+                    sequence:
+                      - action: "{{ repeat.item | trim }}"
                         data:
-                          tag: "door-fallback-2"
-                          push:
-                            sound:
-                              name: default
-                              critical: "{{ 1 if long_open_critical else 0 }}"
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: "{{ 'alarm_stream' if long_open_critical else 'default' }}"
-                  continue_on_error: true
-
-                # --- Person 3 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_3 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_3 }}"
-                      data:
-                        title: "Tür offen — Fallback-Alarm"
-                        message: >
-                          Wohnungstür steht seit {{ long_open_duration }} Minuten offen!
-                        data:
-                          tag: "door-fallback-3"
-                          push:
-                            sound:
-                              name: default
-                              critical: "{{ 1 if long_open_critical else 0 }}"
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: "{{ 'alarm_stream' if long_open_critical else 'default' }}"
-                  continue_on_error: true
-
-                # --- Person 4 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_4 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_4 }}"
-                      data:
-                        title: "Tür offen — Fallback-Alarm"
-                        message: >
-                          Wohnungstür steht seit {{ long_open_duration }} Minuten offen!
-                        data:
-                          tag: "door-fallback-4"
-                          push:
-                            sound:
-                              name: default
-                              critical: "{{ 1 if long_open_critical else 0 }}"
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: "{{ 'alarm_stream' if long_open_critical else 'default' }}"
-                  continue_on_error: true
+                          title: "{{ '🚨' if inputs.long_open_critical | bool(false) else '🔔' }} Tür offen — Fallback-Alarm"
+                          message: "Wohnungstür steht seit {{ inputs.long_open_duration }} Minuten offen!"
+                          data:
+                            tag: door_fallback
+                            push:
+                              interruption-level: "{{ 'critical' if inputs.long_open_critical | bool(false) else 'active' }}"
+                              sound:
+                                name: "{{ 'alarm.caf' if inputs.long_open_critical | bool(false) else 'default' }}"
+                                critical: "{{ 1 if inputs.long_open_critical | bool(false) else 0 }}"
+                                volume: 1.0
+                            ttl: 0
+                            priority: high
+                            channel: "{{ 'alarm_stream' if inputs.long_open_critical | bool(false) else 'default' }}"
+                        continue_on_error: true
 
                 # Warte auf Tür-Schließung oder Repeat-Intervall
                 - wait_for_trigger:
@@ -655,7 +604,7 @@ actions:
         continue_on_error: true
 
       # =====================================================================
-      #  SZENARIO 3: Einbruch-Erkennung
+      #  SZENARIO 3: 🔐 Einbruch-Erkennung
       #  → KEINE Person zuhause + Tür offen → Kritischer Alarm an ALLE
       # =====================================================================
       - sequence:
@@ -670,24 +619,21 @@ actions:
           # Niemand zuhause?
           - condition: template
             value_template: >
-              {% set persons = [person_1, person_2, person_3, person_4]
-                 | reject('eq', '') | list %}
+              {% set persons = all_persons %}
               {% set home_count = expand(persons)
                  | selectattr('state', 'eq', 'home')
                  | list | length %}
               {{ persons | length > 0 and home_count == 0 }}
 
-          # Debug: Szenario-Eintritt
+          # Debug
           - if:
               - condition: template
-                value_template: "{{ debug_enabled }}"
+                value_template: "{{ inputs.debug_enabled | bool(false) }}"
             then:
-              - action: "notify.{{ notify_service_1 }}"
+              - action: "{{ notify_service_1 | trim }}"
                 data:
-                  title: "[DEBUG] Szenario: Einbruch"
-                  message: >
-                    Tür seit {{ breakin_duration }}s offen, niemand zuhause!
-                    Sende Einbruch-Alarm an alle Personen.
+                  title: "🐛 Szenario: Einbruch"
+                  message: "Tür seit {{ inputs.breakin_duration }}s offen, niemand zuhause! Sende Einbruch-Alarm an alle."
             continue_on_error: true
 
           # Repeat bis Tür zu
@@ -697,85 +643,28 @@ actions:
                   entity_id: !input door_sensor
                   state: "on"
               sequence:
-                # --- Person 1: immer ---
-                - action: "notify.{{ notify_service_1 }}"
-                  data:
-                    title: "SICHERHEITSWARNUNG"
-                    message: "Eventueller Einbruch — Tür wurde geöffnet und niemand ist zuhause!"
-                    data:
-                      tag: "door-breakin-1"
-                      push:
-                        sound:
-                          name: default
-                          critical: 1
-                          volume: 1.0
-                      ttl: 0
-                      priority: high
-                      channel: alarm_stream
-                  continue_on_error: true
-
-                # --- Person 2 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_2 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_2 }}"
-                      data:
-                        title: "SICHERHEITSWARNUNG"
-                        message: "Eventueller Einbruch — Tür wurde geöffnet und niemand ist zuhause!"
+                - variables:
+                    breakin_targets: >
+                      {{ (all_notify_targets | trim).split(',') if (all_notify_targets | trim) != '' else [] }}
+                - repeat:
+                    for_each: "{{ breakin_targets }}"
+                    sequence:
+                      - action: "{{ repeat.item | trim }}"
                         data:
-                          tag: "door-breakin-2"
-                          push:
-                            sound:
-                              name: default
-                              critical: 1
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: alarm_stream
-                  continue_on_error: true
-
-                # --- Person 3 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_3 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_3 }}"
-                      data:
-                        title: "SICHERHEITSWARNUNG"
-                        message: "Eventueller Einbruch — Tür wurde geöffnet und niemand ist zuhause!"
-                        data:
-                          tag: "door-breakin-3"
-                          push:
-                            sound:
-                              name: default
-                              critical: 1
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: alarm_stream
-                  continue_on_error: true
-
-                # --- Person 4 ---
-                - if:
-                    - condition: template
-                      value_template: "{{ notify_service_4 != '' }}"
-                  then:
-                    - action: "notify.{{ notify_service_4 }}"
-                      data:
-                        title: "SICHERHEITSWARNUNG"
-                        message: "Eventueller Einbruch — Tür wurde geöffnet und niemand ist zuhause!"
-                        data:
-                          tag: "door-breakin-4"
-                          push:
-                            sound:
-                              name: default
-                              critical: 1
-                              volume: 1.0
-                          ttl: 0
-                          priority: high
-                          channel: alarm_stream
-                  continue_on_error: true
+                          title: "🚨 SICHERHEITSWARNUNG"
+                          message: "Eventueller Einbruch — Tür wurde geöffnet und niemand ist zuhause!"
+                          data:
+                            tag: door_breakin
+                            push:
+                              interruption-level: critical
+                              sound:
+                                name: alarm.caf
+                                critical: 1
+                                volume: 1.0
+                            ttl: 0
+                            priority: high
+                            channel: alarm_stream
+                        continue_on_error: true
 
                 # Warte auf Tür-Schließung oder Repeat-Intervall
                 - wait_for_trigger:
